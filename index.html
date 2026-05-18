@@ -4,116 +4,88 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>VoiceNote</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
 <div class="app">
 
-  <!-- GÓRNY PASEK -->
-  <header class="topbar">
-    <div class="logo">
-      <span class="logo-dot"></span>
-      <span class="logo-text">VoiceNote</span>
+  <!-- NAGRAJ -->
+  <section id="tab-record" class="tab active">
+    <div class="top-bar">
+      <div class="logo"><span class="dot"></span>VoiceNote</div>
+      <div class="stats"><span id="s-total">0</span> nagrań · <span class="amber" id="s-pending">0</span> do weryfikacji</div>
     </div>
-    <div class="topbar-stats">
-      <span id="s-total">0</span> nagrań &nbsp;·&nbsp;
-      <span class="pending-num" id="s-pending">0</span> do weryfikacji
+    <div class="section-label">Wybierz kategorię (opcjonalnie)</div>
+    <div class="cat-grid" id="cat-pills"></div>
+    <button class="add-cat-btn" id="add-cat-btn">+ dodaj kategorię</button>
+    <div class="add-cat-modal" id="add-cat-modal">
+      <input type="text" id="new-cat-input" placeholder="Nazwa kategorii...">
+      <div class="modal-row">
+        <button class="mbtn" id="modal-cancel">Anuluj</button>
+        <button class="mbtn accent" id="modal-confirm">Dodaj</button>
+      </div>
     </div>
-  </header>
+    <div class="error-box" id="error-box" style="display:none"></div>
+    <div class="live-box" id="live-box" style="display:none">
+      <div class="live-label">Rozpoznano:</div>
+      <div class="live-text" id="live-text"></div>
+    </div>
+    <div class="spacer"></div>
+    <div class="record-bar">
+      <div class="timer-wrap">
+        <div class="timer" id="timer">0:00</div>
+        <div class="record-hint" id="record-status">Kliknij aby nagrać</div>
+      </div>
+      <canvas id="wave-canvas" width="80" height="40" class="wave"></canvas>
+      <button class="rec-btn idle" id="record-btn">
+        <svg id="icon-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="9" y1="22" x2="15" y2="22"/></svg>
+        <svg id="icon-stop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></svg>
+      </button>
+    </div>
+  </section>
 
-  <!-- ZAKŁADKI -->
-  <nav class="tabs">
-    <button class="tab-btn active" data-tab="record">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+  <!-- NOTATKI -->
+  <section id="tab-notes" class="tab">
+    <div class="top-bar">
+      <div class="logo"><span class="dot"></span>Notatki</div>
+    </div>
+    <div class="filter-scroll">
+      <div class="filter-row" id="filter-row"></div>
+    </div>
+    <div class="notes-list" id="notes-list"></div>
+  </section>
+
+  <!-- SZUKAJ -->
+  <section id="tab-search" class="tab">
+    <div class="top-bar">
+      <div class="logo"><span class="dot"></span>Szukaj</div>
+    </div>
+    <div class="search-wrap">
+      <input type="text" class="search-input" id="search-input" placeholder="Szukaj w notatkach...">
+    </div>
+    <div class="notes-list" id="search-results">
+      <div class="empty">Wpisz frazę aby przeszukać notatki</div>
+    </div>
+  </section>
+
+  <!-- DOLNA NAWIGACJA -->
+  <nav class="bottom-nav">
+    <button class="bnav active" data-tab="record">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
       Nagraj
     </button>
-    <button class="tab-btn" data-tab="notes">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg>
+    <button class="bnav" data-tab="notes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg>
       Notatki
     </button>
-    <button class="tab-btn" data-tab="search">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10.5" cy="10.5" r="6"/><line x1="15" y1="15" x2="20" y2="20"/></svg>
+    <button class="bnav" data-tab="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.5" cy="10.5" r="6"/><line x1="15" y1="15" x2="20" y2="20"/></svg>
       Szukaj
     </button>
   </nav>
 
-  <!-- GŁÓWNA TREŚĆ -->
-  <main class="main">
-
-    <!-- TAB: NAGRAJ -->
-    <section id="tab-record" class="tab active">
-
-      <!-- Kategorie -->
-      <div class="cat-section">
-        <div class="cat-section-label">Kategoria (AI przypisze automatycznie)</div>
-        <div class="cat-grid" id="cat-pills"></div>
-        <button class="add-cat-btn" id="add-cat-btn">+ dodaj kategorię</button>
-      </div>
-
-      <div class="add-cat-modal" id="add-cat-modal">
-        <input type="text" id="new-cat-input" placeholder="Nazwa kategorii..." maxlength="30">
-        <div class="modal-actions">
-          <button class="modal-btn cancel" id="modal-cancel">Anuluj</button>
-          <button class="modal-btn confirm" id="modal-confirm">Dodaj</button>
-        </div>
-      </div>
-
-      <div class="error-box" id="error-box" style="display:none"></div>
-
-      <!-- Podgląd na żywo -->
-      <div class="live-preview" id="live-preview" style="display:none">
-        <div class="live-text" id="live-text"></div>
-      </div>
-
-      <!-- Przycisk nagrywania -->
-      <div class="record-bar">
-        <div class="record-left">
-          <div class="timer" id="timer">0:00</div>
-          <div class="record-status" id="record-status">Kliknij aby nagrać</div>
-        </div>
-        <div class="waveform" id="waveform">
-          <canvas id="wave-canvas" width="80" height="36"></canvas>
-        </div>
-        <button class="record-btn idle" id="record-btn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" id="icon-mic">
-            <rect x="9" y="2" width="6" height="12" rx="3"/>
-            <path d="M5 10a7 7 0 0014 0"/>
-            <line x1="12" y1="19" x2="12" y2="22"/>
-            <line x1="9" y1="22" x2="15" y2="22"/>
-          </svg>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" id="icon-stop" style="display:none">
-            <rect x="6" y="6" width="12" height="12" rx="2"/>
-          </svg>
-        </button>
-      </div>
-
-    </section>
-
-    <!-- TAB: NOTATKI -->
-    <section id="tab-notes" class="tab">
-      <div class="filter-wrap">
-        <div class="filter-row" id="filter-row"></div>
-      </div>
-      <div class="notes-list" id="notes-list"></div>
-    </section>
-
-    <!-- TAB: SZUKAJ -->
-    <section id="tab-search" class="tab">
-      <div class="search-wrap">
-        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10.5" cy="10.5" r="6"/><line x1="15" y1="15" x2="20" y2="20"/></svg>
-        <input type="text" class="search-input" id="search-input" placeholder="Szukaj w notatkach...">
-      </div>
-      <div class="notes-list" id="search-results">
-        <div class="empty-state">Wpisz frazę aby przeszukać notatki</div>
-      </div>
-    </section>
-
-  </main>
 </div>
-
 <script src="js/app.js"></script>
 </body>
 </html>
