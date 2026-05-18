@@ -69,7 +69,7 @@ function saveToStorage() {
 }
 
 function bindEvents() {
-  document.querySelectorAll('.nav-btn').forEach(btn => {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
   });
   document.getElementById('record-btn').addEventListener('click', toggleRecord);
@@ -89,7 +89,7 @@ function bindEvents() {
 
 function switchTab(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
   document.querySelector('[data-tab="' + tab + '"]').classList.add('active');
   if (tab === 'notes') renderNotes();
@@ -109,7 +109,7 @@ function updateStats() {
   const today = new Date().toDateString();
   document.getElementById('s-total').textContent = state.notes.length;
   document.getElementById('s-pending').textContent = state.notes.filter(n => n.pending).length;
-  document.getElementById('s-today').textContent = state.notes.filter(n => new Date(n.ts).toDateString() === today).length;
+  const todayEl = document.getElementById('s-today'); if (todayEl) todayEl.textContent = state.notes.filter(n => new Date(n.ts).toDateString() === today).length;
 }
 
 function catColor(cat) {
@@ -123,6 +123,7 @@ function catColor(cat) {
 
 function renderSidebar() {
   const list = document.getElementById('sidebar-cat-list');
+  if (!list) return;
   list.innerHTML = '';
   state.categories.forEach(cat => {
     const count = state.notes.filter(n => n.category === cat).length;
@@ -220,7 +221,10 @@ function startRecording() {
     const preview = (currentTranscript + interim).trim();
     const label = document.getElementById('record-status');
     if (preview) {
-      label.textContent = preview.length > 80 ? '...' + preview.slice(-80) : preview;
+      label.textContent = preview.length > 50 ? '...' + preview.slice(-50) : preview;
+      const lp = document.getElementById('live-preview');
+      const lt = document.getElementById('live-text');
+      if (lp && lt) { lp.style.display = 'block'; lt.textContent = preview; }
     }
   };
 
@@ -263,6 +267,7 @@ function stopRecording() {
   clearInterval(timerInterval);
   cancelAnimationFrame(waveAnimFrame);
   document.getElementById('waveform').classList.remove('visible');
+  const lp2 = document.getElementById('live-preview'); if (lp2) lp2.style.display = 'none';
   setRecordUI('idle');
   resetTimer();
 
