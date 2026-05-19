@@ -3,89 +3,151 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>VoiceNote</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600&display=swap" rel="stylesheet">
+  <title>Whispr</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500&family=DM+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<div class="app">
 
-  <!-- NAGRAJ -->
-  <section id="tab-record" class="tab active">
-    <div class="top-bar">
-      <div class="logo"><span class="dot"></span>VoiceNote</div>
-      <div class="stats"><span id="s-total">0</span> nagrań · <span class="amber" id="s-pending">0</span> do weryfikacji</div>
+<div class="app" id="app">
+
+  <!-- STRONA GŁÓWNA -->
+  <section id="tab-home" class="tab active">
+    <div class="home-header">
+      <div class="logo-wrap">
+        <div class="logo-mark">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 1C8.5 1 6 3.5 6 7v6c0 3.5 2.5 6 6 6s6-2.5 6-6V7c0-3.5-2.5-6-6-6z" stroke="currentColor" stroke-width="1.2"/><path d="M3 12c0 5 4 9 9 9s9-4 9-9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="12" y1="21" x2="12" y2="24" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </div>
+        <span class="logo-name">Whispr</span>
+      </div>
+      <div class="home-date" id="home-date"></div>
     </div>
-    <div class="section-label">Wybierz kategorię (opcjonalnie)</div>
-    <div class="cat-grid" id="cat-pills"></div>
-    <button class="add-cat-btn" id="add-cat-btn">+ dodaj kategorię</button>
-    <div class="add-cat-modal" id="add-cat-modal">
-      <input type="text" id="new-cat-input" placeholder="Nazwa kategorii...">
-      <div class="modal-row">
-        <button class="mbtn" id="modal-cancel">Anuluj</button>
-        <button class="mbtn accent" id="modal-confirm">Dodaj</button>
+
+    <div class="search-bar-wrap">
+      <div class="search-bar" id="search-bar-home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10.5" cy="10.5" r="6"/><line x1="15" y1="15" x2="20" y2="20"/></svg>
+        <input type="text" placeholder="Szukaj w notatkach..." id="home-search-input" readonly>
+        <button class="voice-search-btn" id="voice-search-btn" title="Szukaj głosowo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+        </button>
       </div>
     </div>
+
+    <div class="record-area">
+      <div class="record-outer" id="record-outer">
+        <div class="record-ring" id="record-ring">
+          <button class="record-btn" id="record-btn">
+            <svg id="icon-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="9" y1="22" x2="15" y2="22"/></svg>
+            <svg id="icon-stop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:none"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor" stroke="none"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="record-meta">
+        <div class="timer" id="timer">0:00</div>
+        <div class="record-hint" id="record-hint">Dotknij aby nagrać</div>
+      </div>
+      <canvas id="wave-canvas" width="200" height="32" class="wave-canvas"></canvas>
+    </div>
+
+    <div class="cat-select-wrap">
+      <div class="cat-select-label">Kategoria</div>
+      <div class="cat-pills-home" id="cat-pills-home"></div>
+    </div>
+
     <div class="error-box" id="error-box" style="display:none"></div>
     <div class="live-box" id="live-box" style="display:none">
-      <div class="live-label">Rozpoznano:</div>
+      <div class="live-label">Rozpoznano</div>
       <div class="live-text" id="live-text"></div>
     </div>
-    <div class="spacer"></div>
-    <div class="record-bar">
-      <div class="timer-wrap">
-        <div class="timer" id="timer">0:00</div>
-        <div class="record-hint" id="record-status">Kliknij aby nagrać</div>
-      </div>
-      <canvas id="wave-canvas" width="80" height="40" class="wave"></canvas>
-      <button class="rec-btn idle" id="record-btn">
-        <svg id="icon-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="9" y1="22" x2="15" y2="22"/></svg>
-        <svg id="icon-stop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></svg>
+
+    <nav class="bottom-nav">
+      <button class="bnav active" data-tab="home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/></svg>
+        <span>Nagraj</span>
+      </button>
+      <button class="bnav" data-tab="notes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg>
+        <span>Moje Myśli</span>
+      </button>
+    </nav>
+  </section>
+
+  <!-- MOJE MYŚLI -->
+  <section id="tab-notes" class="tab">
+    <div class="notes-header">
+      <button class="back-btn" data-tab="home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <h2 class="notes-title">Moje Myśli</h2>
+      <button class="export-btn" id="export-btn" title="Eksportuj notatki">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       </button>
     </div>
+
+    <div class="sort-bar">
+      <button class="sort-btn active" data-sort="newest">Najnowsze</button>
+      <button class="sort-btn" data-sort="oldest">Najstarsze</button>
+      <button class="sort-btn" data-sort="category">Kategoria</button>
+    </div>
+
+    <div class="categories-accordion" id="categories-accordion"></div>
+
+    <nav class="bottom-nav">
+      <button class="bnav" data-tab="home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/></svg>
+        <span>Nagraj</span>
+      </button>
+      <button class="bnav active" data-tab="notes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg>
+        <span>Moje Myśli</span>
+      </button>
+    </nav>
   </section>
 
-  <!-- NOTATKI -->
-  <section id="tab-notes" class="tab">
-    <div class="top-bar">
-      <div class="logo"><span class="dot"></span>Notatki</div>
-    </div>
-    <div class="filter-scroll">
-      <div class="filter-row" id="filter-row"></div>
-    </div>
-    <div class="notes-list" id="notes-list"></div>
-  </section>
-
-  <!-- SZUKAJ -->
+  <!-- WYSZUKIWANIE -->
   <section id="tab-search" class="tab">
-    <div class="top-bar">
-      <div class="logo"><span class="dot"></span>Szukaj</div>
+    <div class="notes-header">
+      <button class="back-btn" data-tab="home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <h2 class="notes-title">Szukaj</h2>
     </div>
-    <div class="search-wrap">
-      <input type="text" class="search-input" id="search-input" placeholder="Szukaj w notatkach...">
+    <div class="search-full-wrap">
+      <input type="text" class="search-full-input" id="search-full-input" placeholder="Wpisz frazę...">
     </div>
-    <div class="notes-list" id="search-results">
-      <div class="empty">Wpisz frazę aby przeszukać notatki</div>
+    <div class="notes-scroll" id="search-results">
+      <div class="empty-state">Wpisz frazę aby przeszukać notatki</div>
     </div>
+    <nav class="bottom-nav">
+      <button class="bnav" data-tab="home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/></svg>
+        <span>Nagraj</span>
+      </button>
+      <button class="bnav" data-tab="notes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg>
+        <span>Moje Myśli</span>
+      </button>
+    </nav>
   </section>
 
-  <!-- DOLNA NAWIGACJA -->
-  <nav class="bottom-nav">
-    <button class="bnav active" data-tab="record">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
-      Nagraj
-    </button>
-    <button class="bnav" data-tab="notes">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg>
-      Notatki
-    </button>
-    <button class="bnav" data-tab="search">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.5" cy="10.5" r="6"/><line x1="15" y1="15" x2="20" y2="20"/></svg>
-      Szukaj
-    </button>
-  </nav>
+  <!-- MODAL: DODAJ PODKATEGORIĘ -->
+  <div class="modal-overlay" id="subcategory-modal" style="display:none">
+    <div class="modal-card">
+      <div class="modal-title">Nowa podkategoria</div>
+      <input type="text" class="modal-input" id="subcategory-input" placeholder="Nazwa podkategorii...">
+      <div class="modal-select-wrap">
+        <select class="modal-select" id="subcategory-parent"></select>
+      </div>
+      <div class="modal-btns">
+        <button class="modal-btn-cancel" id="subcategory-cancel">Anuluj</button>
+        <button class="modal-btn-confirm" id="subcategory-confirm">Dodaj</button>
+      </div>
+    </div>
+  </div>
 
 </div>
+
 <script src="js/app.js"></script>
 </body>
 </html>
