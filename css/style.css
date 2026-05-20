@@ -1,16 +1,17 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 :root {
-  --bg: #1a1f35;
-  --bg2: #222844;
-  --bg3: #2a3258;
-  --bg4: #323d6a;
+  --bg: #1e2640;
+  --bg2: #28325a;
+  --bg3: #323d6e;
+  --bg4: #3c4880;
   --gold: #c9a84c;
   --gold2: #e2c06e;
   --gold3: rgba(201,168,76,0.18);
   --gold-border: rgba(201,168,76,0.3);
-  --silver: #d4d8e8;
   --silver2: #a8aec8;
+  --silver: #d8dce8;
+  --silver2: #b0b8d0;
   --white: #eef0f8;
   --white2: rgba(238,240,248,0.7);
   --white3: rgba(238,240,248,0.35);
@@ -71,11 +72,11 @@ html,body{height:100%;background:var(--bg);color:var(--white);font-family:var(--
 .record-ring{width:128px;height:128px;border-radius:50%;background:linear-gradient(145deg,var(--bg3),var(--bg4));border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;position:relative;z-index:1;box-shadow:0 8px 32px rgba(0,0,0,0.3)}
 
 /* Przycisk: srebrny środek, złota obwódka */
-.record-btn{width:90px;height:90px;border-radius:50%;border:2px solid var(--gold);cursor:pointer;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#e8ecf4,#c8cedd);color:#2a3258;transition:all 0.2s;-webkit-tap-highlight-color:transparent;box-shadow:0 4px 16px rgba(0,0,0,0.25),inset 0 1px 2px rgba(255,255,255,0.6)}
+.record-btn{width:90px;height:90px;border-radius:50%;border:3px solid var(--gold);cursor:pointer;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#e8ecf5,#c4cad8);color:#3a4060;transition:all 0.2s;-webkit-tap-highlight-color:transparent;box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 1px 3px rgba(255,255,255,0.7)}
 .record-btn-inner{display:flex;align-items:center;justify-content:center;width:100%;height:100%}
-.record-btn svg{width:28px;height:28px}
+.record-btn svg{width:28px;height:28px;color:#3a4060}
 .record-btn:active{transform:scale(0.94)}
-.record-btn.recording{background:linear-gradient(145deg,#f0f2f8,#d8dce8);border-color:var(--gold2);box-shadow:0 4px 20px rgba(201,168,76,0.35),inset 0 1px 2px rgba(255,255,255,0.8)}
+.record-btn.recording{background:linear-gradient(145deg,#f0f2f8,#d8dce8);border-color:var(--gold2);border-width:3px;box-shadow:0 4px 20px rgba(201,168,76,0.4),inset 0 1px 3px rgba(255,255,255,0.8)}
 
 .timer-wrap{display:flex;flex-direction:column;align-items:center;gap:4px}
 .timer{font-family:var(--font-mono);font-size:30px;color:var(--white);letter-spacing:0.06em}

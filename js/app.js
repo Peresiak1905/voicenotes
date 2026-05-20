@@ -136,7 +136,8 @@ function switchTab(tab){
 }
 
 function renderDate(){
-  // Brak elementu daty w nowym layoucie
+  const el=document.getElementById('home-date');
+  if(el) el.textContent=new Date().toLocaleDateString('pl-PL',{weekday:'short',day:'numeric',month:'short'}).toUpperCase();
 }
 
 // ========== NAGRYWANIE ==========
