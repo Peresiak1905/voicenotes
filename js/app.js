@@ -767,7 +767,7 @@ function importNotes(event){
   reader.readAsText(file);
 }
 
-{const b=document.getElementById('error-box');b.textContent=msg;b.style.display='block';}
+function showError(msg){const b=document.getElementById('error-box');b.textContent=msg;b.style.display='block';}
 function hideError(){document.getElementById('error-box').style.display='none';}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
