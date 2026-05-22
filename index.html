@@ -18,11 +18,14 @@
 <div class="app">
 
   <!-- NAGRAJ -->
-  <section id="tab-home" class="tab active">
-    <header class="home-hdr">
+  <div id="tab-home" class="tab active">
+    <div class="home-hdr">
       <div class="logo-row">
         <div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0" stroke-linecap="round"/><line x1="12" y1="19" x2="12" y2="22" stroke-linecap="round"/></svg></div>
-        <span class="logo-txt">Whispr</span>
+        <div class="logo-txt-wrap">
+          <span class="logo-txt">Whispr</span>
+          <span class="logo-ver">v2.4</span>
+        </div>
         <span class="logo-date" id="logo-date"></span>
       </div>
       <div class="search-pill" id="search-pill-btn">
@@ -30,8 +33,7 @@
         <span>Szukaj w notatkach...</span>
         <button class="pill-mic" id="home-voice-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/></svg></button>
       </div>
-    </header>
-
+    </div>
     <div class="rec-zone">
       <div class="rec-outer" id="rec-outer">
         <div class="rec-glow"></div>
@@ -46,49 +48,43 @@
       </div>
       <canvas id="wave-canvas" width="220" height="32" class="wave-canvas"></canvas>
     </div>
-
     <div class="live-zone">
       <div class="live-hdr"><span class="live-dot"></span><span class="live-lbl">NA ŻYWO</span></div>
       <div class="live-txt" id="live-txt">Zacznij mówić...</div>
     </div>
-
     <div class="err-box" id="err-box" style="display:none"></div>
-
     <nav class="bnav-bar">
       <button class="bnav active" data-tab="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/></svg><span>Nagraj</span></button>
       <button class="bnav" data-tab="notes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg><span>Moje Myśli</span></button>
     </nav>
-  </section>
+  </div>
 
   <!-- MOJE MYŚLI -->
-  <section id="tab-notes" class="tab">
-    <header class="notes-hdr">
-      <h1 class="notes-title">Moje Myśli</h1>
-      <div class="hdr-btns">
-        <button class="hdr-btn" id="import-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/></svg><input type="file" id="import-file" accept=".txt" style="display:none"></button>
-        <button class="hdr-btn" id="export-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="7 16 12 21 17 16"/><line x1="12" y1="21" x2="12" y2="9"/><path d="M3 9V5a2 2 0 012-2h14a2 2 0 012 2v4"/></svg></button>
+  <div id="tab-notes" class="tab">
+    <div class="notes-fixed-top">
+      <div class="notes-hdr">
+        <h1 class="notes-title">Moje Myśli <span class="notes-ver">v2.4</span></h1>
+        <div class="hdr-btns">
+          <button class="hdr-btn" id="import-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/></svg><input type="file" id="import-file" accept=".txt" style="display:none"></button>
+          <button class="hdr-btn" id="export-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="7 16 12 21 17 16"/><line x1="12" y1="21" x2="12" y2="9"/><path d="M3 9V5a2 2 0 012-2h14a2 2 0 012 2v4"/></svg></button>
+        </div>
       </div>
-    </header>
-
-    <div class="notes-search-wrap">
-      <div class="notes-sbar">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10.5" cy="10.5" r="6"/><line x1="15" y1="15" x2="20" y2="20"/></svg>
-        <input type="text" id="notes-q" placeholder="Szukaj...">
-        <button class="filter-btn" id="filter-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg></button>
-      </div>
-      <div class="filters-panel" id="filters-panel" style="display:none">
-        <div class="frow"><label>Folder</label><select id="f-cat"><option value="">Wszystkie</option></select></div>
-        <div class="frow"><label>Status</label><select id="f-status"><option value="">Wszystkie</option><option value="pending">Do weryfikacji</option><option value="ok">Zatwierdzone</option></select></div>
-        <div class="frow"><label>Od</label><input type="date" id="f-from"></div>
-        <div class="frow"><label>Do</label><input type="date" id="f-to"></div>
-        <button class="fclear-btn" id="fclear-btn">Wyczyść</button>
+      <div class="notes-sbar-wrap">
+        <div class="notes-sbar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10.5" cy="10.5" r="6"/><line x1="15" y1="15" x2="20" y2="20"/></svg>
+          <input type="text" id="notes-q" placeholder="Szukaj...">
+          <button class="filter-btn" id="filter-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg></button>
+        </div>
+        <div class="filters-panel" id="filters-panel" style="display:none">
+          <div class="frow"><label>Folder</label><select id="f-cat"><option value="">Wszystkie</option></select></div>
+          <div class="frow"><label>Status</label><select id="f-status"><option value="">Wszystkie</option><option value="pending">Do weryfikacji</option><option value="ok">Zatwierdzone</option></select></div>
+          <div class="frow"><label>Od</label><input type="date" id="f-from"></div>
+          <div class="frow"><label>Do</label><input type="date" id="f-to"></div>
+          <button class="fclear-btn" id="fclear-btn">Wyczyść</button>
+        </div>
       </div>
     </div>
-
-    <!-- SCROLLOWALNA ZAWARTOŚĆ -->
-    <div class="notes-scroll-area" id="notes-scroll-area">
-
-      <!-- Nieprzypisane -->
+    <div class="notes-scroll" id="notes-scroll">
       <div id="pending-section" style="display:none">
         <div class="section-hdr">
           <div class="pending-dot"></div>
@@ -98,40 +94,36 @@
         </div>
         <div id="pending-list"></div>
       </div>
-
-      <!-- Foldery (pigułki) -->
       <div class="folders-grid" id="folders-grid"></div>
-
-      <!-- Zawartość aktywnego folderu -->
-      <div id="active-folder-content"></div>
-
-      <!-- Dodaj folder -->
+      <div id="active-content"></div>
       <button class="add-folder-pill" id="add-folder-btn">+ folder</button>
-
     </div>
-
     <nav class="bnav-bar">
       <button class="bnav" data-tab="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/></svg><span>Nagraj</span></button>
       <button class="bnav active" data-tab="notes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg><span>Moje Myśli</span></button>
     </nav>
-  </section>
+  </div>
 
   <!-- SZUKAJ -->
-  <section id="tab-search" class="tab">
-    <header class="notes-hdr">
-      <button class="back-btn" data-tab="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 18 9 12 15 6"/></svg></button>
-      <h1 class="notes-title">Szukaj</h1>
-    </header>
-    <div class="search-full-wrap">
-      <input type="text" id="search-q" placeholder="Wpisz frazę...">
-      <button class="search-mic-btn" id="search-voice-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/></svg></button>
+  <div id="tab-search" class="tab">
+    <div class="notes-fixed-top">
+      <div class="notes-hdr">
+        <button class="back-btn" data-tab="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <h1 class="notes-title">Szukaj</h1>
+      </div>
+      <div class="notes-sbar-wrap">
+        <div class="notes-sbar">
+          <input type="text" id="search-q" placeholder="Wpisz frazę..." style="flex:1">
+          <button class="filter-btn" id="search-voice-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/></svg></button>
+        </div>
+      </div>
     </div>
-    <div class="search-results" id="search-results"><div class="empty-state">Wpisz frazę aby przeszukać</div></div>
+    <div class="notes-scroll" id="search-results"><div class="empty-state">Wpisz frazę aby przeszukać</div></div>
     <nav class="bnav-bar">
       <button class="bnav" data-tab="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/></svg><span>Nagraj</span></button>
       <button class="bnav" data-tab="notes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg><span>Moje Myśli</span></button>
     </nav>
-  </section>
+  </div>
 
   <!-- MODALS -->
   <div class="modal-ov" id="m-addlevel" style="display:none">
@@ -141,7 +133,6 @@
       <div class="modal-btns"><button class="mbtn-c" id="m-addlevel-cancel">Anuluj</button><button class="mbtn-ok" id="m-addlevel-ok">Dodaj</button></div>
     </div>
   </div>
-
   <div class="modal-ov" id="m-assign" style="display:none">
     <div class="modal-box">
       <div class="modal-title">Przypisz notatkę</div>
@@ -152,7 +143,6 @@
       <div class="modal-btns"><button class="mbtn-c" id="m-assign-cancel">Anuluj</button><button class="mbtn-ok" id="m-assign-ok">Przypisz</button></div>
     </div>
   </div>
-
   <div class="modal-ov" id="m-bulk" style="display:none">
     <div class="modal-box">
       <div class="modal-title" id="m-bulk-title">Przypisz wszystkie</div>
@@ -163,7 +153,6 @@
       <div class="modal-btns"><button class="mbtn-c" id="m-bulk-cancel">Anuluj</button><button class="mbtn-ok" id="m-bulk-ok">Przypisz</button></div>
     </div>
   </div>
-
 </div>
 <script src="js/app.js"></script>
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});</script>
