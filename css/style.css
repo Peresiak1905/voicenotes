@@ -10,14 +10,15 @@
   --fb:'DM Sans',system-ui,sans-serif;
   --fm:'DM Mono',monospace;
 }
-html,body{height:100%;background:var(--bg);color:var(--w);font-family:var(--fb);font-size:14px;overflow:hidden;-webkit-font-smoothing:antialiased}
+html{height:100%;height:-webkit-fill-available}
+body{height:100%;height:-webkit-fill-available;background:var(--bg);color:var(--w);font-family:var(--fb);font-size:14px;overflow:hidden;-webkit-font-smoothing:antialiased;position:fixed;width:100%}
 
 /* APP SHELL — kluczowe: overflow hidden na app, scrolluje tylko notes-scroll-area */
-.app{display:flex;flex-direction:column;height:100vh;max-width:480px;margin:0 auto;overflow:hidden;position:relative}
+.app{display:flex;flex-direction:column;height:100vh;height:-webkit-fill-available;max-width:480px;margin:0 auto;overflow:hidden;position:relative}
 .app::before{content:'';position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:280px;background:radial-gradient(ellipse at 50% -10%,rgba(201,168,76,0.1) 0%,transparent 60%);pointer-events:none;z-index:0}
 
 /* TAB — każda sekcja zajmuje pełną wysokość i nie scrolluje sama */
-.tab{display:none;flex-direction:column;height:100%;position:relative;z-index:1}
+.tab{display:none;flex-direction:column;height:100%;position:relative;z-index:1;min-height:0}
 .tab.active{display:flex}
 
 /* ═══ HOME ═══ */
@@ -98,13 +99,15 @@ html,body{height:100%;background:var(--bg);color:var(--w);font-family:var(--fb);
 /* ═══ SCROLL AREA — TO JEST KLUCZOWE ═══ */
 .notes-scroll-area{
   flex:1;
-  overflow-y:auto;
+  overflow-y:scroll;
   overflow-x:hidden;
   -webkit-overflow-scrolling:touch;
-  padding:0 20px 16px;
+  overscroll-behavior:contain;
+  padding:0 20px 80px;
   display:flex;
   flex-direction:column;
   gap:10px;
+  min-height:0;
 }
 .notes-scroll-area::-webkit-scrollbar{width:2px}
 .notes-scroll-area::-webkit-scrollbar-thumb{background:var(--bdr2)}
@@ -178,7 +181,7 @@ html,body{height:100%;background:var(--bg);color:var(--w);font-family:var(--fb);
 .search-full-wrap input::placeholder{color:var(--w3)}
 .search-mic-btn{background:var(--bg3);border:1px solid var(--bdr2);border-radius:12px;color:var(--gold);cursor:pointer;padding:10px;display:flex}
 .search-mic-btn svg{width:18px;height:18px}
-.search-results{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 20px;display:flex;flex-direction:column;gap:6px}
+.search-results{flex:1;overflow-y:scroll;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:0 20px 80px;display:flex;flex-direction:column;gap:6px;min-height:0}
 .search-results::-webkit-scrollbar{width:2px}
 
 .empty-state{text-align:center;padding:3rem 0;color:var(--w3);font-size:13px}
