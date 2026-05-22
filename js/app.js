@@ -21,6 +21,7 @@ const KW = {
 };
 
 let S = {
+  selectedNotes: new Set(),
   notes:[], folders:[...DEFAULT_FOLDERS], tree:{},
   activeFolder:null, activeCat:null, activeGroup:null,
   assignNoteId:null, bulkSource:null,
@@ -436,7 +437,8 @@ function buildFolderContent(folderId, notes){
 // ═══ NOTE CARD ═══
 function buildCard(note, showCb=false){
   const card=document.createElement('div');
-  card.className='note-card'+(note.pending?' pending':'');
+  const isSel=S.selectedNotes.has(String(note.id));
+  card.className='note-card'+(note.pending?' pending':'')+(isSel?' selected':'');
   const d=new Date(note.ts);
   const t=d.toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit'});
   const dt=d.toLocaleDateString('pl-PL',{day:'numeric',month:'short'});
@@ -448,9 +450,10 @@ function buildCard(note, showCb=false){
   const q=S.filter.q;
   const ht=q?hlText(esc(note.text),q):esc(note.text);
 
+  const cbChecked=isSel?'checked':'';
   card.innerHTML=
     '<div class="note-meta">'+
-      (showCb?'<input type="checkbox" class="note-cb" data-id="'+note.id+'">':'')+
+      '<input type="checkbox" class="note-cb" data-id="'+note.id+'" '+cbChecked+'>'+
       '<span class="ntime">'+t+' · '+dt+'</span>'+
       '<span class="nbadge">'+badge+'</span>'+
       (note.pending?'<span class="nptag">⚠</span>':'')+
@@ -565,6 +568,34 @@ function confirmAssign(){
   note.topic=(el('a-topic')||{}).value||null;
   note.pending=false;
   save(); closeModal('m-assign'); renderNotesTab();
+}
+
+// ═══ SELECT BAR ═══
+function renderSelectBar(){
+  let bar=document.getElementById('select-bar');
+  if(S.selectedNotes.size>0){
+    if(!bar){
+      bar=document.createElement('div');
+      bar.id='select-bar';
+      bar.style.cssText='position:fixed;bottom:var(--nav);left:0;right:0;max-width:480px;margin:0 auto;background:var(--bg3);border-top:1px solid var(--goldb);padding:10px 20px;display:flex;align-items:center;gap:10px;z-index:20';
+      bar.innerHTML='<span style="flex:1;font-size:13px;color:var(--gold)" id="sel-cnt"></span>'+
+        '<button onclick="S.selectedNotes.clear();renderNotesTab();renderSelectBar()" style="background:none;border:1px solid var(--bdr2);border-radius:8px;color:var(--w3);font-family:var(--fb);font-size:12px;padding:6px 12px;cursor:pointer">Odznacz</button>'+
+        '<button onclick="openBulkSelected()" style="background:var(--golda);border:1.5px solid var(--gold);border-radius:8px;color:var(--gold2);font-family:var(--fb);font-size:12px;padding:6px 14px;cursor:pointer">Przypisz zaznaczone</button>';
+      document.querySelector('.app').appendChild(bar);
+    }
+    document.getElementById('sel-cnt').textContent='Zaznaczono: '+S.selectedNotes.size;
+  } else {
+    if(bar) bar.remove();
+  }
+}
+
+function openBulkSelected(){
+  fillSel('b-folder');
+  hideSelects('b');
+  updateSels('b');
+  const t=document.getElementById('m-bulk-title');
+  if(t) t.textContent='Przypisz zaznaczone ('+S.selectedNotes.size+')';
+  openModal('m-bulk');
 }
 
 // ═══ BULK ═══
