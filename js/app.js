@@ -1,6 +1,7 @@
-// WHISPR 2.4
+// WHISPR v2.44
+// FIXES: updateSels, fillSel, hideSelects — kaskadowe dropdowny w modalach przypisywania
 
-const VER = '2.4';
+const VER = '2.44';
 
 const DEFAULT_FOLDERS = [
   {id:'praca',name:'Praca',color:0},
@@ -78,7 +79,7 @@ function save(){
   localStorage.setItem('w241_tree',JSON.stringify(S.tree));
 }
 
-// ═══ BIND ═══
+// ═══ HELPERS ═══
 function el(id){ return document.getElementById(id); }
 
 function on(id, ev, fn){
@@ -87,6 +88,7 @@ function on(id, ev, fn){
   else console.warn('Missing element:',id);
 }
 
+// ═══ BIND ═══
 function bind(){
   // Nawigacja
   document.querySelectorAll('.bnav').forEach(b=>{
@@ -118,6 +120,7 @@ function bind(){
   on('m-addlevel-name','keydown',e=>{if(e.key==='Enter')confirmAdd();if(e.key==='Escape')closeModal('m-addlevel');});
   on('m-assign-cancel','click',()=>closeModal('m-assign'));
   on('m-assign-ok','click',confirmAssign);
+  // NAPRAWKA: kaskadowe dropdowny — zmiana folderu/kat/grupy odświeża niższe poziomy
   on('a-folder','change',()=>updateSels('a'));
   on('a-cat','change',()=>updateSels('a'));
   on('a-group','change',()=>updateSels('a'));
@@ -183,7 +186,7 @@ function startRec(){
   rec.onerror=(e)=>{
     console.log('rec error',e.error);
     if(e.error==='not-allowed') showErr('Brak dostępu do mikrofonu. Zezwól w ustawieniach Chrome.');
-    else if(e.error==='no-speech') {} // ignoruj
+    else if(e.error==='no-speech') {}
     else if(e.error!=='aborted') showErr('Błąd nagrywania: '+e.error);
     if(e.error==='not-allowed'||e.error==='service-not-allowed'){ cleanRec(); }
   };
@@ -300,7 +303,6 @@ function renderFoldersGrid(notes){
       S.activeFolder = S.activeFolder===folder.id ? null : folder.id;
       S.activeCat=null; S.activeGroup=null;
       renderNotesTab();
-      // Scroll do zawartości
       setTimeout(()=>{
         const ac=el('active-content');
         const sc=el('notes-scroll');
@@ -318,7 +320,6 @@ function buildFolderContent(folderId, notes){
   const folder=S.folders.find(f=>f.id===folderId);
   const wrap=document.createElement('div');
 
-  // Header
   const hdr=document.createElement('div');
   hdr.className='active-content-hdr';
   const bk=document.createElement('button');
@@ -365,7 +366,7 @@ function buildFolderContent(folderId, notes){
   cRow.appendChild(addC);
   wrap.appendChild(cRow);
 
-  // Grupy (lv2) — jeśli aktywna kategoria
+  // Grupy (lv2)
   if(S.activeCat&&cats.includes(S.activeCat)){
     const groups=S.tree[folderId][S.activeCat]?Object.keys(S.tree[folderId][S.activeCat]):[];
     const gRow=document.createElement('div'); gRow.className='pills-grid';
@@ -396,7 +397,7 @@ function buildFolderContent(folderId, notes){
     gRow.appendChild(addG);
     wrap.appendChild(gRow);
 
-    // Tematy (lv3) — jeśli aktywna grupa
+    // Tematy (lv3)
     if(S.activeGroup&&groups.includes(S.activeGroup)){
       const topics=S.tree[folderId][S.activeCat][S.activeGroup]||[];
       const tRow=document.createElement('div'); tRow.className='pills-grid';
@@ -420,14 +421,11 @@ function buildFolderContent(folderId, notes){
       addT.addEventListener('click',()=>openAdd('topic',folderId,S.activeCat,S.activeGroup));
       tRow.appendChild(addT);
       wrap.appendChild(tRow);
-      // Notatki z aktywnej grupy
       notes.filter(n=>n.category===S.activeCat&&n.group===S.activeGroup).forEach(n=>wrap.appendChild(buildCard(n)));
     } else {
-      // Notatki z aktywnej kategorii bez grupy
       notes.filter(n=>n.category===S.activeCat&&!n.group).forEach(n=>wrap.appendChild(buildCard(n)));
     }
   } else {
-    // Notatki bez kategorii
     notes.filter(n=>!n.category).forEach(n=>wrap.appendChild(buildCard(n)));
   }
 
@@ -513,87 +511,145 @@ function confirmAdd(){
   save(); closeModal('m-addlevel'); renderNotesTab();
 }
 
-// ═══ ASSIGN ═══
-function openAssignModal(noteId){
-  S.assignNoteId=noteId;
-  buildAssignModal('a', null, null, null);
-  openModal('m-assign');
-}
+// ═══ MODAL HELPERS ═══
 
-function buildAssignModal(pfx, selFolderId, selCat, selGroup){
-  const fs=el(pfx+'-folder');
-  if(!fs) return;
-
-  // Folder
-  const fId=selFolderId||fs.value||S.folders[0]?.id||'';
+/**
+ * fillSel — wypełnia dropdown folderami
+ */
+function fillSel(selId){
+  const fs=el(selId); if(!fs) return;
   fs.innerHTML='';
   S.folders.forEach(f=>{
     const o=document.createElement('option');
     o.value=f.id; o.textContent=f.name;
-    if(f.id===fId) o.selected=true;
     fs.appendChild(o);
   });
+}
 
-  // Kategoria
-  const cs=el(pfx+'-cat');
-  const cats=S.tree[fId]?Object.keys(S.tree[fId]):[];
+/**
+ * hideSelects — ukrywa i czyści dropdowny cat/group/topic dla danego prefiksu
+ */
+function hideSelects(pfx){
+  ['cat','group','topic'].forEach(s=>{
+    const e=el(pfx+'-'+s);
+    if(e){ e.style.display='none'; e.innerHTML=''; }
+  });
+}
+
+/**
+ * updateSels — kaskadowe odświeżanie dropdownów kat → grupa → temat
+ * NAPRAWKA v2.44: ta funkcja nie istniała w v2.43, przez co
+ * grupy i tematy nigdy się nie wypełniały po zmianie folderu/kategorii.
+ */
+function updateSels(pfx){
+  const fId = el(pfx+'-folder')?.value || '';
+  const cs  = el(pfx+'-cat');
+  const gs  = el(pfx+'-group');
+  const ts  = el(pfx+'-topic');
+
+  // ── Kategorie ──
+  const cats = S.tree[fId] ? Object.keys(S.tree[fId]) : [];
   if(cs){
     if(cats.length){
-      cs.style.display='block';
-      cs.innerHTML='<option value="">— bez kategorii —</option>';
+      const prev = cs.value;
+      cs.innerHTML = '<option value="">— bez kategorii —</option>';
       cats.forEach(c=>{
         const o=document.createElement('option');
         o.value=c; o.textContent=c;
-        if(c===selCat) o.selected=true;
+        if(c===prev) o.selected=true;
         cs.appendChild(o);
       });
+      cs.style.display = 'block';
     } else {
-      cs.style.display='none'; cs.innerHTML='<option value="">— brak kategorii —</option>';
+      cs.innerHTML = '<option value="">— brak kategorii —</option>';
+      cs.style.display = 'none';
     }
   }
-  const catVal=cs&&cats.length?cs.value:'';
 
-  // Grupa
-  const gs=el(pfx+'-group');
-  const groups=catVal&&S.tree[fId]&&S.tree[fId][catVal]?Object.keys(S.tree[fId][catVal]):[];
+  const catVal = (cs && cs.style.display!=='none') ? cs.value : '';
+
+  // ── Grupy ──
+  const groups = (catVal && S.tree[fId]?.[catVal])
+    ? Object.keys(S.tree[fId][catVal])
+    : [];
   if(gs){
-    if(catVal&&groups.length){
-      gs.style.display='block';
-      gs.innerHTML='<option value="">— bez grupy —</option>';
+    if(catVal && groups.length){
+      const prev = gs.value;
+      gs.innerHTML = '<option value="">— bez grupy —</option>';
       groups.forEach(g=>{
         const o=document.createElement('option');
         o.value=g; o.textContent=g;
-        if(g===selGroup) o.selected=true;
+        if(g===prev) o.selected=true;
         gs.appendChild(o);
       });
+      gs.style.display = 'block';
     } else {
-      gs.style.display='none'; gs.innerHTML='';
+      gs.innerHTML = '';
+      gs.style.display = 'none';
     }
   }
-  const grpVal=gs&&gs.style.display!=='none'?gs.value:'';
 
-  // Temat
-  const ts=el(pfx+'-topic');
-  const topics=catVal&&grpVal&&S.tree[fId]&&S.tree[fId][catVal]&&S.tree[fId][catVal][grpVal]?S.tree[fId][catVal][grpVal]:[];
+  const grpVal = (gs && gs.style.display!=='none') ? gs.value : '';
+
+  // ── Tematy ──
+  const topics = (catVal && grpVal && S.tree[fId]?.[catVal]?.[grpVal])
+    ? S.tree[fId][catVal][grpVal]
+    : [];
   if(ts){
-    if(catVal&&grpVal&&topics.length){
-      ts.style.display='block';
-      ts.innerHTML='<option value="">— bez tematu —</option>';
-      topics.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;ts.appendChild(o);});
+    if(catVal && grpVal && topics.length){
+      ts.innerHTML = '<option value="">— bez tematu —</option>';
+      topics.forEach(t=>{
+        const o=document.createElement('option');
+        o.value=t; o.textContent=t;
+        ts.appendChild(o);
+      });
+      ts.style.display = 'block';
     } else {
-      ts.style.display='none'; ts.innerHTML='';
+      ts.innerHTML = '';
+      ts.style.display = 'none';
     }
   }
+}
+
+// ═══ ASSIGN ═══
+function openAssignModal(noteId){
+  S.assignNoteId = noteId;
+  const note = S.notes.find(n=>n.id===noteId);
+
+  // Wypełnij foldery i ustaw aktualny folder notatki
+  fillSel('a-folder');
+  if(note && el('a-folder')) el('a-folder').value = note.folder || S.folders[0]?.id || '';
+
+  // Odśwież kaskadę od nowa
+  hideSelects('a');
+  updateSels('a');
+
+  // Przywróć poprzednie przypisanie jeśli istnieje
+  if(note){
+    if(note.category && el('a-cat') && el('a-cat').style.display!=='none'){
+      el('a-cat').value = note.category;
+      updateSels('a'); // odśwież grupy po wyborze kategorii
+    }
+    if(note.group && el('a-group') && el('a-group').style.display!=='none'){
+      el('a-group').value = note.group;
+      updateSels('a'); // odśwież tematy po wyborze grupy
+    }
+    if(note.topic && el('a-topic') && el('a-topic').style.display!=='none'){
+      el('a-topic').value = note.topic;
+    }
+  }
+
+  openModal('m-assign');
 }
 
 function confirmAssign(){
   const note=S.notes.find(n=>n.id===S.assignNoteId);
   if(!note){ closeModal('m-assign'); return; }
-  note.folder=el('a-folder').value||note.folder;
-  note.category=(el('a-cat')&&el('a-cat').style.display!=='none')?el('a-cat').value||null:null;
-  note.group=(el('a-group')&&el('a-group').style.display!=='none')?el('a-group').value||null:null;
-  note.topic=(el('a-topic')&&el('a-topic').style.display!=='none')?el('a-topic').value||null:null;
-  note.pending=false;
+  note.folder  = el('a-folder').value || note.folder;
+  note.category= (el('a-cat')   && el('a-cat').style.display  !=='none') ? el('a-cat').value   || null : null;
+  note.group   = (el('a-group') && el('a-group').style.display!=='none') ? el('a-group').value || null : null;
+  note.topic   = (el('a-topic') && el('a-topic').style.display!=='none') ? el('a-topic').value || null : null;
+  note.pending = false;
   save(); closeModal('m-assign'); renderNotesTab();
 }
 
@@ -621,7 +677,9 @@ function openBulkSelected(){
     alert('Zaznacz najpierw notatki checkboxami.');
     return;
   }
-  buildAssignModal('b',null,null,null);
+  fillSel('b-folder');
+  hideSelects('b');
+  updateSels('b');
   const t=document.getElementById('m-bulk-title');
   if(t) t.textContent='Przypisz zaznaczone ('+S.selectedNotes.size+')';
   openModal('m-bulk');
@@ -629,9 +687,9 @@ function openBulkSelected(){
 
 // ═══ BULK ═══
 function openBulk(source){
-  S.bulkSource=source;
-  const t=el('m-bulk-title');
-  if(t) t.textContent=source==='pending'?'Przypisz nieprzypisane':'Przypisz notatki z folderu';
+  S.bulkSource = source;
+  const t = el('m-bulk-title');
+  if(t) t.textContent = source==='pending' ? 'Przypisz nieprzypisane' : 'Przypisz notatki z folderu';
   fillSel('b-folder');
   hideSelects('b');
   updateSels('b');
@@ -639,11 +697,21 @@ function openBulk(source){
 }
 
 function confirmBulk(){
-  const fId=el('b-folder').value;
-  const cat=(el('b-cat')&&el('b-cat').style.display!=='none')?el('b-cat').value||null:null;
-  const grp=(el('b-group')&&el('b-group').style.display!=='none')?el('b-group').value||null:null;
-  const top=(el('b-topic')&&el('b-topic').style.display!=='none')?el('b-topic').value||null:null;
-  const toAssign=S.bulkSource==='pending'?S.notes.filter(n=>n.pending):S.notes.filter(n=>n.folder===S.bulkSource);
+  const fId = el('b-folder').value;
+  const cat = (el('b-cat')   && el('b-cat').style.display  !=='none') ? el('b-cat').value   || null : null;
+  const grp = (el('b-group') && el('b-group').style.display!=='none') ? el('b-group').value || null : null;
+  const top = (el('b-topic') && el('b-topic').style.display!=='none') ? el('b-topic').value || null : null;
+
+  let toAssign;
+  if(S.bulkSource==='pending'){
+    toAssign = S.notes.filter(n=>n.pending);
+  } else if(S.selectedNotes && S.selectedNotes.size>0){
+    toAssign = S.notes.filter(n=>S.selectedNotes.has(String(n.id)));
+    S.selectedNotes.clear();
+  } else {
+    toAssign = S.notes.filter(n=>n.folder===S.bulkSource);
+  }
+
   toAssign.forEach(n=>{ n.folder=fId; n.category=cat; n.group=grp; n.topic=top; n.pending=false; });
   save(); closeModal('m-bulk'); renderNotesTab();
 }
@@ -775,5 +843,5 @@ function showErr(msg){ const b=el('err-box'); if(b){ b.textContent=msg; b.style.
 function hideErr(){ showErr(''); }
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-// Start
+// ═══ START ═══
 document.addEventListener('DOMContentLoaded', init);
