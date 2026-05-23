@@ -1,7 +1,7 @@
-// WHISPR v2.44
+// WHISPR v2.45
 // FIXES: updateSels, fillSel, hideSelects — kaskadowe dropdowny w modalach przypisywania
 
-const VER = '2.44';
+const VER = '2.45';
 
 const DEFAULT_FOLDERS = [
   {id:'praca',name:'Praca',color:0},
@@ -467,6 +467,19 @@ function buildCard(note, showCb=false){
     '</div>';
 
   card.querySelector('.asgn-btn').addEventListener('click',()=>openAssignModal(note.id));
+
+  // Checkbox — zaznaczanie do zbiorczego przypisania
+  const cb=card.querySelector('.note-cb');
+  if(cb){
+    cb.addEventListener('change',e=>{
+      e.stopPropagation();
+      if(cb.checked) S.selectedNotes.add(String(note.id));
+      else S.selectedNotes.delete(String(note.id));
+      card.classList.toggle('selected',cb.checked);
+      renderSelectBar();
+    });
+  }
+
   const eb=card.querySelector('.edit-btn'), tEl=card.querySelector('.ntxt'), ta=card.querySelector('.nta');
   eb.addEventListener('click',()=>{
     if(ta.style.display==='none'){ tEl.style.display='none'; ta.style.display='block'; eb.textContent='Zapisz'; ta.focus(); }
@@ -703,11 +716,12 @@ function confirmBulk(){
   const top = (el('b-topic') && el('b-topic').style.display!=='none') ? el('b-topic').value || null : null;
 
   let toAssign;
-  if(S.bulkSource==='pending'){
-    toAssign = S.notes.filter(n=>n.pending);
-  } else if(S.selectedNotes && S.selectedNotes.size>0){
+  if(S.selectedNotes && S.selectedNotes.size>0){
+    // Zaznaczone checkboxami — priorytet
     toAssign = S.notes.filter(n=>S.selectedNotes.has(String(n.id)));
     S.selectedNotes.clear();
+  } else if(S.bulkSource==='pending'){
+    toAssign = S.notes.filter(n=>n.pending);
   } else {
     toAssign = S.notes.filter(n=>n.folder===S.bulkSource);
   }
